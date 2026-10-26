@@ -1,43 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WEATHER API || RAZA RAO</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather 3D • Atmospheric Bento Studio</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+  
+  <!-- Three.js for 3D Atmospheric Sky Simulation (Sun, Rain, Clouds) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="shape-1"></div>
-  <div class="shape-2"></div>
-  <div class="card">
-    <div class="search-box">
+  <!-- 3D Realistic Weather Physics Canvas (Raindrops, Volumetric Sun Rays, Cloud Mist) -->
+  <canvas id="weather-sky-canvas"></canvas>
+
+  <!-- Clean Header Navigation -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <span class="brand-badge">ATMOSPHERE 3D</span>
+      <span class="brand-title">Weather Studio • Raza Rao</span>
+    </div>
     
-        <input type="text" name="" id="city" placeholder="Enter city name...!">
-         <button id="button">search</button>
+    <div class="header-meta">
+      <div class="header-status">
+        <span class="live-dot"></span>
+        <span>Live Telemetry</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Atmospheric Container -->
+  <main class="bento-container">
     
-    </div>
-    <div class="result">
+    <!-- Top Search & Quick Location Island -->
+    <section class="top-action-bar">
+      <div class="search-capsule">
+        <i data-lucide="search" class="search-icon"></i>
+        <input 
+          type="text" 
+          id="city-input" 
+          placeholder="Search location (e.g. Lahore, London, Tokyo, New York)..." 
+          autocomplete="off" 
+          spellcheck="false"
+        >
+        <button id="search-btn" class="search-action-btn">
+          <span>Search</span>
+          <i data-lucide="arrow-up-right" class="btn-arrow"></i>
+        </button>
+      </div>
 
-         <h2>KARACHI</h2>
-         <p>SINDH</p>
-         <p id="cloud">FEW CLOUDS</p>
-         <img src="//cdn.weatherapi.com/weather/64x64/day/293.png" alt="">
-         <h2>18.5`</h2>
+      <div class="quick-pill-strip">
+        <span class="strip-label"><i data-lucide="sparkles"></i> Hotspots:</span>
+        <button class="quick-chip" data-city="Karachi">Karachi</button>
+        <button class="quick-chip" data-city="Lahore">Lahore</button>
+        <button class="quick-chip" data-city="Islamabad">Islamabad</button>
+        <button class="quick-chip" data-city="Dubai">Dubai</button>
+        <button class="quick-chip" data-city="London">London</button>
+        <button class="quick-chip" data-city="Tokyo">Tokyo</button>
+      </div>
+    </section>
 
-    <div>
-    <div class="wind">
-         <p>wind</p>
-         <p id="wind-vlue">64mph</p>
+    <!-- Error Toast Notification -->
+    <div id="error-toast" class="error-toast hidden">
+      <i data-lucide="cloud-off" class="toast-icon"></i>
+      <span id="error-message">Location not found. Please try again!</span>
     </div>
-    <div class="pressure">
-         <p>Pressure</p>
-         <p id="pressure-vlue">20hn</p>
-    </div>
-    </div>  
-    </div>
-  </div>
 
+    <!-- ASYMMETRIC BENTO GRID -->
+    <div class="bento-layout">
+      
+      <!-- HERO CARD: Main Current Weather Island (Large) -->
+      <article class="bento-card bento-hero tilt-card" id="hero-card">
+        <div class="card-glare"></div>
+        
+        <div class="hero-top-row">
+          <div class="location-meta">
+            <div class="loc-pin-badge">
+              <i data-lucide="map-pin"></i>
+              <span id="loc-region">Sindh, Pakistan</span>
+            </div>
+            <h1 id="loc-city" class="city-heading">Karachi</h1>
+            <p id="loc-time" class="time-readout">Local Time: 15:45</p>
+          </div>
 
-    <script src="./app.js"></script>
+          <div class="unit-switcher">
+            <button id="unit-toggle" class="unit-btn">
+              <span class="active-unit" id="unit-c">°C</span>
+              <span class="unit-sep">/</span>
+              <span id="unit-f">°F</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-center-row">
+          <!-- 3D Weather State Illustration Box -->
+          <div class="weather-visual-box">
+            <img id="weather-icon" src="https://cdn.weatherapi.com/weather/64x64/day/113.png" alt="Weather" class="main-weather-icon">
+            <span id="weather-condition" class="condition-name">Sunny Sky</span>
+          </div>
+
+          <!-- Kinetic Huge Temperature Display -->
+          <div class="temp-huge-box">
+            <div class="temp-digits">
+              <span id="temp-number" class="digits">28</span>
+              <span class="degree-mark">°</span>
+            </div>
+            <div class="temp-sub-meta">
+              <span class="feels-label">Feels like <strong id="feels-val">29°C</strong></span>
+              <span class="high-low-tag">H: <strong id="temp-high">32°</strong> L: <strong id="temp-low">21°</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-bottom-status">
+          <div class="sky-condition-desc">
+            <i data-lucide="sun-medium" class="sky-icon"></i>
+            <span id="sky-summary">Clear atmosphere with gentle breeze</span>
+          </div>
+          <div class="live-pulse-badge">
+            <span class="pulse-dot"></span>
+            <span>Real-time Telemetry</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- 24-HOUR HOURLY KINETIC SLIDER -->
+      <article class="bento-card bento-hourly tilt-card">
+        <div class="card-glare"></div>
+        <div class="card-title-row">
+          <div class="title-with-icon">
+            <i data-lucide="clock" class="card-icon"></i>
+            <span>24-Hour Forecast Timeline</span>
+          </div>
+          <span class="hourly-hint">Swipe / Scroll</span>
+        </div>
+
+        <div class="hourly-track" id="hourly-track">
+          <div class="hourly-skeleton">Loading timeline...</div>
+        </div>
+      </article>
+
+      <!-- SUN PATH & EPHEMERIS ARC -->
+      <article class="bento-card bento-sun tilt-card">
+        <div class="card-glare"></div>
+        <div class="card-title-row">
+          <div class="title-with-icon">
+            <i data-lucide="sunrise" class="card-icon"></i>
+            <span>Solar Arc & Daylight</span>
+          </div>
+        </div>
+
+        <div class="sun-arc-wrapper">
+          <svg class="sun-arc-svg" viewBox="0 0 240 120">
+            <!-- Dotted Horizon Arc -->
+            <path d="M 20,110 A 100,100 0 0,1 220,110" fill="none" stroke="rgba(255, 255, 255, 0.12)" stroke-dasharray="4 4" stroke-width="2"/>
+            <!-- Active Sun Progress Path -->
+            <path id="sun-path-active" d="M 20,110 A 100,100 0 0,1 120,10" fill="none" stroke="url(#sun-grad)" stroke-width="3"/>
+            <!-- Sun Orb Marker -->
+            <circle id="sun-marker" cx="120" cy="10" r="7" fill="#fbbf24" filter="drop-shadow(0 0 8px #f59e0b)"/>
+            
+            <defs>
+              <linearGradient id="sun-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#f97316"/>
+                <stop offset="100%" stop-color="#fbbf24"/>
+              </linearGradient>
+            </defs>
+          </svg>
+
+          <div class="sun-times-row">
+            <div class="sun-time-item">
+              <span class="label">Sunrise</span>
+              <span class="time" id="sunrise-time">06:25 AM</span>
+            </div>
+            <div class="sun-time-item right">
+              <span class="label">Sunset</span>
+              <span class="time" id="sunset-time">06:48 PM</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 3D WIND COMPASS TILE -->
+      <article class="bento-card bento-wind tilt-card">
+        <div class="card-glare"></div>
+        <div class="card-title-row">
+          <div class="title-with-icon">
+            <i data-lucide="wind" class="card-icon"></i>
+            <span>Wind Velocity & Heading</span>
+          </div>
+        </div>
+
+        <div class="compass-content">
+          <div class="compass-dial">
+            <div class="dial-points">
+              <span class="dial-n">N</span>
+              <span class="dial-e">E</span>
+              <span class="dial-s">S</span>
+              <span class="dial-w">W</span>
+            </div>
+            <!-- Rotating Needle -->
+            <div class="compass-needle" id="compass-needle">
+              <div class="needle-north"></div>
+              <div class="needle-south"></div>
+            </div>
+          </div>
+
+          <div class="wind-readout">
+            <div class="wind-speed" id="wind-speed-val">14 <span>km/h</span></div>
+            <div class="wind-direction" id="wind-dir-val">WSW (244°)</div>
+            <div class="wind-gust" id="wind-gust-val">Gusts up to 21 km/h</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- AIR QUALITY & UV INDEX -->
+      <article class="bento-card bento-aqi tilt-card">
+        <div class="card-glare"></div>
+        <div class="card-title-row">
+          <div class="title-with-icon">
+            <i data-lucide="shield-check" class="card-icon"></i>
+            <span>UV Index & Air Quality</span>
+          </div>
+        </div>
+
+        <div class="aqi-uv-grid">
+          <!-- UV Meter -->
+          <div class="meter-block">
+            <div class="meter-header">
+              <span class="meter-name">UV Index</span>
+              <span class="meter-score" id="uv-score">4.2</span>
+            </div>
+            <div class="meter-bar-track">
+              <div class="meter-bar-fill uv-fill" id="uv-fill" style="width: 42%;"></div>
+            </div>
+            <span class="meter-advice" id="uv-advice">Moderate • Wear sunglasses</span>
+          </div>
+
+          <!-- Humidity Moisture Meter -->
+          <div class="meter-block">
+            <div class="meter-header">
+              <span class="meter-name">Humidity Moisture</span>
+              <span class="meter-score" id="humidity-score">58%</span>
+            </div>
+            <div class="meter-bar-track">
+              <div class="meter-bar-fill humidity-fill" id="humidity-fill" style="width: 58%;"></div>
+            </div>
+            <span class="meter-advice" id="humidity-advice">Normal dew point (16°C)</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- BAROMETRIC PRESSURE & VISIBILITY -->
+      <article class="bento-card bento-pressure tilt-card">
+        <div class="card-glare"></div>
+        <div class="card-title-row">
+          <div class="title-with-icon">
+            <i data-lucide="gauge" class="card-icon"></i>
+            <span>Atmospheric Barometer</span>
+          </div>
+        </div>
+
+        <div class="baro-readout">
+          <div class="baro-primary">
+            <span class="baro-val" id="pressure-val">1012</span>
+            <span class="baro-unit">hPa / mb</span>
+          </div>
+          <div class="baro-badge" id="pressure-status">Stable High Pressure</div>
+          
+          <div class="visibility-metric">
+            <i data-lucide="eye" class="mini-eye"></i>
+            <span>Visual Horizon: <strong id="vis-val">10.0 km</strong> (Clear)</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
